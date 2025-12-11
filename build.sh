@@ -31,7 +31,6 @@ main() {
         archive_name="openlist-frontend-dist-${version_tag}"
     fi
     build_project
-    create_version_file
     handle_compression
     log_success "Build completed."
 }
@@ -115,7 +114,7 @@ validate_git_tag() {
 # Fallback to default git tag for development builds
 fallback_git_tag() {
     git tag -d rolling >/dev/null 2>&1 || true
-    git_version=$(git describe --abbrev=0 --tags 2>/dev/null || echo "v0.0.0")
+    git_version=v$(jq -r .version package.json)
     git_version_clean=${git_version#v}
     git_version_clean=${git_version_clean%%-*}
 }
@@ -184,13 +183,6 @@ extract_i18n_tarball() {
             log_warning "Failed to download i18n.tar.gz"
         fi
     fi
-}
-
-# Create VERSION file in the dist directory
-create_version_file() {
-    log_step "Writing version $version_tag to dist/VERSION..."
-    echo -n "$version_tag" > dist/VERSION
-    log_success "Version file created: dist/VERSION"
 }
 
 # Handle compression if requested
